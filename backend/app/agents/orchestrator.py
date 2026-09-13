@@ -44,11 +44,16 @@ ARTIFACT_REGEX = re.compile(
 from bleach.css_sanitizer import CSSSanitizer
 
 _css_sanitizer = CSSSanitizer()
+SCRIPT_BLOCK_REGEX = re.compile(r'<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>', re.IGNORECASE)
+STYLE_BLOCK_REGEX = re.compile(r'<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>', re.IGNORECASE)
 
 def sanitize_artifact_content(raw_html: str) -> str:
     """Sanitize LLM-generated HTML artifact content using bleach whitelist and CSS sanitizer."""
+    # First purge executable script blocks and embedded raw style tags
+    stripped = SCRIPT_BLOCK_REGEX.sub('', raw_html)
+    stripped = STYLE_BLOCK_REGEX.sub('', stripped)
     return bleach.clean(
-        raw_html,
+        stripped,
         tags=ALLOWED_HTML_TAGS,
         attributes=ALLOWED_HTML_ATTRS,
         css_sanitizer=_css_sanitizer,

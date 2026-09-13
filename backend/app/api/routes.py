@@ -1,6 +1,7 @@
 """FastAPI router implementing health, session, message, retrieval, and artifact endpoints."""
 
 from fastapi import APIRouter, Depends, HTTPException, status, Header
+from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session as SQLAlchemySession
 from datetime import datetime, timezone
 import time
@@ -209,6 +210,22 @@ async def get_artifact(artifact_id: str, db: SQLAlchemySession = Depends(get_db)
             detail=f"Artifact with ID '{artifact_id}' not found",
         )
     return ArtifactResponse(**artifact.to_dict())
+
+@router.get("/api/v1/artifacts/{artifact_id}/iframe", response_class=HTMLResponse, tags=["Artifacts"])
+async def get_artifact_iframe(artifact_id: str, db: SQLAlchemySession = Depends(get_db)):
+    """Render an operational artifact inside a sandboxed HTML document with strict CSP."""
+    from app.services.artifact_renderer import render_sandboxed_artifact, get_sandbox_security_headers
+
+    artifact = db.query(ArtifactModel).filter(ArtifactModel.id == artifact_id).first()
+    if not artifact:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Artifact with ID '{artifact_id}' not found",
+        )
+
+    html_content = render_sandboxed_artifact(artifact)
+    headers = get_sandbox_security_headers()
+    return HTMLResponse(content=html_content, status_code=status.HTTP_200_OK, headers=headers)
 
 # ============================================================================
 # Retrieval Telemetry Endpoint

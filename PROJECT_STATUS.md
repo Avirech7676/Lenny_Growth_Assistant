@@ -2,14 +2,14 @@
 # The Lenny Growth Assistant
 
 **Date:** 2026-09-13  
-**Active Stage:** Stage 12 — Model Abstraction & Offline Strategy  
-**Overall Status:** GREEN (Stage 12 Complete, Awaiting Human Approval for Stage 13)  
+**Active Stage:** Stage 13 — Artifact Generation & Sandboxing  
+**Overall Status:** GREEN (Stage 13 Complete, Awaiting Human Approval for Stage 14)  
 
 ---
 
 ## 1. Executive Summary
 
-We have completed **Stage 12 (Model Abstraction & Offline Strategy)**. The tripartite provider bridge ([`backend/app/models/provider.py`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/backend/app/models/provider.py)) has been verified across `OllamaProvider`, `AnthropicProvider`, `OpenAIProvider`, and `FallbackGroundedProvider`. Live health diagnostics and fallback latency checks are integrated into `GET /health/llm`. Automated tests confirm graceful offline failover when external daemons or API keys are unavailable, and runtime per-request model switching is validated via API. All 49 automated tests across the test suite passed with 100% success.
+We have completed **Stage 13 (Artifact Generation & Sandboxing)**. Operational artifacts generated during growth advisory workflows (ICE scoring calculators, growth playbook matrices, and Ship 30 cheat sheets) are now rendered inside dedicated, origin-isolated sandboxed environments. The renderer service ([`backend/app/services/artifact_renderer.py`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/backend/app/services/artifact_renderer.py)) transforms sanitized HTML into complete HTML5 documents styled to `DESIGN.md` specifications with dark theme tokens (`#0A0E17`, `#10B981`) and embedded Tailwind/Google Fonts styling. Endpoint `GET /api/v1/artifacts/{id}/iframe` delivers documents with strict Content Security Policy and anti-clickjacking headers. Bleach sanitization was enhanced with regular expression purging of executable script and style blocks, preventing stored XSS. All 55 automated tests across 9 test suites passed with 100% success.
 
 ---
 
@@ -29,8 +29,9 @@ We have completed **Stage 12 (Model Abstraction & Offline Strategy)**. The tripa
 | **Stage 9** | Agent Layer & Routing | **PASS** | `AgentOrchestrator`, `prompts.py`, `provider.py`, `POST /api/v1/sessions/{id}/messages`, `test_agent.py` (6/6 tests passed), `09-agent.md` |
 | **Stage 10**| Ship 30 for 30 Skill | **PASS** | `ship30.py` (structural analyzer, cheat sheet artifact generator), `test_ship30.py` (5/5 tests passed), `10-ship30.md` |
 | **Stage 11**| Decision-Support Skills | **PASS** | `experiments.py`, `playbooks.py`, `test_skills.py` (8/8 tests passed), `11-skills.md` |
-| **Stage 12**| Model Abstraction & Offline Strategy | **PASS** | `provider.py` (OpenAI, Anthropic, Ollama, Fallback), `test_provider.py` (5/5 tests passed; 49/49 total passed), `12-model-bridge.md` |
-| **Stage 13**| Artifact Generation & Sandboxing | **PENDING** | HTML sandbox rendering pipeline, CSP isolation headers, artifact lifecycle API tests |
+| **Stage 12**| Model Abstraction & Offline Strategy | **PASS** | `provider.py` (OpenAI, Anthropic, Ollama, Fallback), `test_provider.py` (5/5 tests passed), `12-model-bridge.md` |
+| **Stage 13**| Artifact Generation & Sandboxing | **PASS** | `artifact_renderer.py`, `GET /api/v1/artifacts/{id}/iframe`, `test_sandbox.py` (6/6 tests passed; 55/55 total), `13-artifacts.md` |
+| **Stage 14**| Frontend Foundation & Design System | **PENDING** | React 19 + Vite + Tailwind v4 setup, token configuration, Phosphor icons, layout scaffolding |
 
 ---
 
@@ -40,18 +41,21 @@ We have completed **Stage 12 (Model Abstraction & Offline Strategy)**. The tripa
 - **Database**: PostgreSQL 16 + pgvector (Docker) with verified local SQLite fallback (`lenny_growth_local.db`)
 - **Knowledge Base**: 13 indexed chunks across Brian Chesky and Shreyas Doshi transcripts; cached in `data/transcripts_cache.json`
 - **Retrieval Engine**: Hybrid vector-lexical scoring with strict epistemic cutoff gate
-- **Agent Orchestrator**: Multi-turn history, Bleach CSS-sanitized artifact extraction, provider abstraction (Ollama/Anthropic/Fallback)
+- **Agent Orchestrator**: Multi-turn history, Bleach + script purging CSS-sanitized artifact extraction, provider abstraction (Ollama/Anthropic/Fallback)
 - **Model Bridge**: Ollama (`llama3.2`), Anthropic (`claude-3-5-sonnet`), OpenAI (`gpt-4o`), and deterministic offline synthesizer
+- **Sandboxing Pipeline**: `GET /api/v1/artifacts/{id}/iframe` with strict CSP (`default-src 'none'`), `nosniff`, `SAMEORIGIN`, `no-referrer`
 - **Backend API**: FastAPI 0.115.6 + Uvicorn + Pydantic v2 + SQLAlchemy 2.0
 - **Runtimes**: Node.js v24.18.0, npm 11.16.0, Python 3.14.6
-- **Test Suite Status**: 49 / 49 tests passing (100% green)
+- **Test Suite Status**: 55 / 55 tests passing across 9 modules (100% green)
 
 ---
 
-## 4. Next Immediate Milestone: Stage 13 (Artifact Generation & Sandboxing)
+## 4. Next Immediate Milestone: Stage 14 (Frontend Foundation & Design System)
 
-- **Goal**: Harden operational artifact generation and enforce strict browser sandbox isolation:
-  1. Build an artifact renderer service (`backend/app/services/artifact_renderer.py`) generating iframe-ready HTML documents with Content Security Policy (`default-src 'none'; style-src 'unsafe-inline' https://cdn.tailwindcss.com;`).
-  2. Implement an artifact HTML preview route (`GET /api/v1/artifacts/{id}/raw` or embedded iframe srcdoc endpoint) with `Content-Type: text/html` and sandbox security headers (`X-Content-Type-Options: nosniff`, `Content-Security-Policy`).
-  3. Implement automated artifact sandbox isolation tests (`backend/tests/test_sandbox.py`).
-- **Stop Condition**: Stage 12 is complete and verified. Present Stage 13 plan and stop for approval.
+- **Goal**: Scaffold and configure the production frontend client in `frontend/`:
+  1. Initialize React + Vite application with strict TypeScript in `frontend/`.
+  2. Configure Tailwind CSS with the exact tokens from `DESIGN.md` (Deep Slate `#0A0E17`, Surface `#0F172A`, Card `#1E293B`, Electric Emerald `#10B981`, Slate 50 `#F8FAFC`, Plus Jakarta Sans & Inter font pairings).
+  3. Install Phosphor Icons (`@phosphor-icons/react`), Lucide, or heroicons for high-polish domain iconography.
+  4. Create base component hierarchy and API client service (`frontend/src/services/api.ts`).
+  5. Verify clean build with `npm run build`.
+- **Stop Condition**: Stage 13 is complete and verified. Present Stage 14 plan and stop for approval.
