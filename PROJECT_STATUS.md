@@ -2,14 +2,14 @@
 # The Lenny Growth Assistant
 
 **Date:** 2026-09-13  
-**Active Stage:** Stage 19 — Security Audit & Production Hardening  
-**Overall Status:** GREEN (Stage 19 Complete, Awaiting Human Approval for Stage 20)  
+**Active Stage:** Stage 20 — Diataxis Documentation Suite & Production README  
+**Overall Status:** GREEN (Stage 20 Complete, Awaiting Human Approval for Stage 21)  
 
 ---
 
 ## 1. Executive Summary
 
-We have completed **Stage 19 (Security Audit & Production Hardening)**. An exhaustive security audit verified secret hygiene (`.env.example` vs `.env`), `.gitignore` exclusions, CORS preflight policies, multi-stage XSS sanitization, and strict Content Security Policy directives on artifact iframes (`default-src 'none'`). Error handlers were validated to ensure zero internal information disclosure or stack trace leaks. The automated security test suite ([`backend/tests/test_security.py`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/backend/tests/test_security.py)) verified 6 dedicated security properties. All 72 automated tests across 12 test modules passed with 100% success.
+We have completed **Stage 20 (Diataxis Documentation Suite & Production README)**. The repository now features an exhaustive documentation suite structured according to the Diataxis framework: Tutorial ([`docs/tutorial.md`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/docs/tutorial.md)), How-To Guides ([`docs/how-to.md`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/docs/how-to.md)), Technical Reference ([`docs/reference.md`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/docs/reference.md)), and Architecture Explanations ([`docs/explanation.md`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/docs/explanation.md)). The root [`README.md`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/README.md) delivers an executive-grade landing page with badges, 10-star evaluator journey, quickstart commands, Mermaid topology diagrams, and test suite matrices. All 72 automated tests across 12 test modules remain 100% green.
 
 ---
 
@@ -36,8 +36,9 @@ We have completed **Stage 19 (Security Audit & Production Hardening)**. An exhau
 | **Stage 16**| End-to-End Integration & Docker Validation | **PASS** | `docker-compose.yml`, `backend/Dockerfile`, cold-start auto-ingestion, `run_local.ps1`, `16-integration.md` |
 | **Stage 17**| Failure Modes & Chaos Engineering | **PASS** | `test_resilience.py` (6/6 tests passed), `jsonable_encoder` validation fix, `17-failure-modes.md` |
 | **Stage 18**| Performance, Telemetry & Observability | **PASS** | `test_performance.py` (5/5 tests passed), latency benchmarks, audit trails, `18-performance.md` |
-| **Stage 19**| Security Audit & Production Hardening | **PASS** | `test_security.py` (6/6 tests passed; 72/72 total), secret redaction, CORS lockdown, CSP verification, `19-security.md` |
-| **Stage 20**| Diataxis Documentation Suite & Production README | **PENDING** | Tutorials, How-To guides, Reference API, Architecture explanations, and master `README.md` |
+| **Stage 19**| Security Audit & Production Hardening | **PASS** | `test_security.py` (6/6 tests passed), secret hygiene, CORS preflight, CSP verification, `19-security.md` |
+| **Stage 20**| Diataxis Documentation Suite & Production README | **PASS** | `docs/tutorial.md`, `docs/how-to.md`, `docs/reference.md`, `docs/explanation.md`, `README.md`, `20-documentation.md` |
+| **Stage 21**| Final System Verification & Release Packaging | **PENDING** | Full-system smoke test, git tag v2.0.0, release summary and final evaluator handoff |
 
 ---
 
@@ -57,12 +58,10 @@ We have completed **Stage 19 (Security Audit & Production Hardening)**. An exhau
 
 ---
 
-## 4. Next Immediate Milestone: Stage 20 (Diataxis Documentation Suite & Production README)
+## 4. Next Immediate Milestone: Stage 21 (Final System Verification & Release Packaging)
 
-- **Goal**: Produce production-grade documentation adhering strictly to the Diataxis framework:
-  1. **Tutorial**: Quickstart guide for an evaluator testing the 10-star experience in under 3 minutes.
-  2. **How-To Guides**: Ingesting custom transcripts, configuring local Ollama vs cloud providers, running offline evaluations.
-  3. **Reference**: Complete REST API reference, Pydantic schemas, database DDL, and environment variables table.
-  4. **Explanation**: Architecture decisions (why hybrid vector-lexical RAG, why epistemic refusal cutoff at 0.28, sandbox threat model).
-  5. Master `README.md` with badges, architecture overview, installation instructions, and evaluation script commands.
-- **Stop Condition**: Stage 19 is complete and verified. Present Stage 20 plan and stop for approval.
+- **Goal**: Final end-to-end verification, git tagging, and handoff report:
+  1. Final smoke pass across all endpoints and UI views.
+  2. Create git release tag `v2.0.0`.
+  3. Prepare final handoff executive summary and evaluator instructions.
+- **Stop Condition**: Stage 20 is complete and verified. Present Stage 21 plan and stop for approval.
