@@ -227,11 +227,53 @@ Grounded in tactical insights from **{guest_name}** on Lenny's Podcast:
 """
 
 
+
+class OpenAIProvider(BaseLLMProvider):
+    """Cloud OpenAI inference provider."""
+
+    def __init__(self, api_key: Optional[str] = settings.OPENAI_API_KEY, model: str = settings.OPENAI_MODEL):
+        self.api_key = api_key
+        self.model = model
+
+    def get_model_name(self) -> str:
+        return self.model
+
+    def health_check(self) -> Dict[str, Any]:
+        has_key = bool(self.api_key)
+        return {"healthy": has_key, "provider": "openai", "model": self.model}
+
+    def generate(self, system_prompt: str, user_prompt: str, context: str, history: List[Dict[str, str]]) -> str:
+        if not self.api_key:
+            return FallbackGroundedProvider().generate(system_prompt, user_prompt, context, history)
+
+        try:
+            import openai
+            client = openai.OpenAI(api_key=self.api_key)
+            messages = [{"role": "system", "content": system_prompt}]
+            for h in history[-4:]:
+                messages.append({"role": h["role"], "content": h["content"]})
+            messages.append({
+                "role": "user",
+                "content": f"TRANSCRIPT CONTEXT:\n{context}\n\nUSER QUESTION: {user_prompt}",
+            })
+            resp = client.chat.completions.create(
+                model=self.model,
+                messages=messages,
+                max_tokens=2500,
+            )
+            return resp.choices[0].message.content or ""
+        except Exception as e:
+            logger.warning("OpenAI API failed (%s). Using fallback generator.", e)
+            return FallbackGroundedProvider().generate(system_prompt, user_prompt, context, history)
+
+
 def get_llm_provider(override: Optional[str] = None) -> BaseLLMProvider:
     """Factory returning active LLM provider based on configuration or runtime override."""
-    target = override or settings.LLM_PROVIDER.lower()
+    target = (override or settings.LLM_PROVIDER).lower()
     if target == "anthropic" and settings.ANTHROPIC_API_KEY:
         return AnthropicProvider()
+    elif target == "openai" and settings.OPENAI_API_KEY:
+        return OpenAIProvider()
     elif target == "ollama":
         provider = OllamaProvider()
         health = provider.health_check()
@@ -239,5 +281,33 @@ def get_llm_provider(override: Optional[str] = None) -> BaseLLMProvider:
             return provider
         logger.info("Ollama is not running locally; using deterministic grounded generator.")
         return FallbackGroundedProvider()
+    elif target in ("anthropic", "openai"):
+        logger.info("%s requested but API key not configured; using deterministic grounded generator.", target)
+        return FallbackGroundedProvider()
     else:
         return FallbackGroundedProvider()
+
+
+def check_llm_health() -> Dict[str, Any]:
+    """Execute live ping and availability check for inference engines."""
+    import time
+    t0 = time.perf_counter()
+    active_target = settings.LLM_PROVIDER.lower()
+    provider = get_llm_provider()
+    model_name = provider.get_model_name()
+    health_info = provider.health_check()
+    latency_ms = round((time.perf_counter() - t0) * 1000, 2)
+
+    status = "healthy" if health_info.get("healthy") else "degraded"
+    fallback_ready = bool(settings.ANTHROPIC_API_KEY or settings.OPENAI_API_KEY or True)
+    fallback_provider = "anthropic" if settings.ANTHROPIC_API_KEY else ("openai" if settings.OPENAI_API_KEY else "deterministic-fallback")
+
+    return {
+        "status": status,
+        "provider": active_target,
+        "active_model": model_name,
+        "latency_ms": max(latency_ms, 0.1),
+        "fallback_ready": fallback_ready,
+        "fallback_provider": fallback_provider,
+    }
+

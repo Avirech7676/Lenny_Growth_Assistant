@@ -70,17 +70,9 @@ async def health_db_check():
 @router.get("/health/llm", response_model=LLMHealthResponse, tags=["Health"])
 async def health_llm_check():
     """Report active model provider connectivity and fallback readiness."""
-    fallback_ready = bool(settings.ANTHROPIC_API_KEY or settings.OPENAI_API_KEY)
-    fallback_provider = "anthropic" if settings.ANTHROPIC_API_KEY else ("openai" if settings.OPENAI_API_KEY else None)
-
-    return LLMHealthResponse(
-        status="healthy",
-        provider=settings.LLM_PROVIDER,
-        active_model=settings.OLLAMA_MODEL if settings.LLM_PROVIDER == "ollama" else settings.ANTHROPIC_MODEL,
-        latency_ms=12.5,
-        fallback_ready=fallback_ready,
-        fallback_provider=fallback_provider,
-    )
+    from app.models.provider import check_llm_health
+    health_data = check_llm_health()
+    return LLMHealthResponse(**health_data)
 
 # ============================================================================
 # Session Management Endpoints
