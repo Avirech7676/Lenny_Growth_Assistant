@@ -2,14 +2,14 @@
 # The Lenny Growth Assistant
 
 **Date:** 2026-09-13  
-**Active Stage:** Stage 18 — Performance, Telemetry & Observability  
-**Overall Status:** GREEN (Stage 18 Complete, Awaiting Human Approval for Stage 19)  
+**Active Stage:** Stage 19 — Security Audit & Production Hardening  
+**Overall Status:** GREEN (Stage 19 Complete, Awaiting Human Approval for Stage 20)  
 
 ---
 
 ## 1. Executive Summary
 
-We have completed **Stage 18 (Performance, Telemetry & Observability)**. Performance benchmarks, audit trails, and concurrency limits were tested and validated. Hybrid retrieval queries execute reliably within SLA, connection pool pings resolve in <25ms, and 10 concurrent turns across 5 distinct sessions execute without deadlocks or thread collisions. End-to-end telemetry headers (`X-Request-ID` and `X-Response-Time-MS`) were verified across all major routes, and every retrieval query logs structured telemetry into `RetrievalLog`. All 66 automated tests across 11 test modules passed with 100% success.
+We have completed **Stage 19 (Security Audit & Production Hardening)**. An exhaustive security audit verified secret hygiene (`.env.example` vs `.env`), `.gitignore` exclusions, CORS preflight policies, multi-stage XSS sanitization, and strict Content Security Policy directives on artifact iframes (`default-src 'none'`). Error handlers were validated to ensure zero internal information disclosure or stack trace leaks. The automated security test suite ([`backend/tests/test_security.py`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/backend/tests/test_security.py)) verified 6 dedicated security properties. All 72 automated tests across 12 test modules passed with 100% success.
 
 ---
 
@@ -35,8 +35,9 @@ We have completed **Stage 18 (Performance, Telemetry & Observability)**. Perform
 | **Stage 15**| Growth Canvas UI & Sandboxed Preview | **PASS** | `GrowthCanvas.jsx`, `EvidenceDrawer.jsx`, `ChatWindow.jsx`, `ChatInput.jsx`, `App.jsx`, browser subagent verification, `15-canvas.md` |
 | **Stage 16**| End-to-End Integration & Docker Validation | **PASS** | `docker-compose.yml`, `backend/Dockerfile`, cold-start auto-ingestion, `run_local.ps1`, `16-integration.md` |
 | **Stage 17**| Failure Modes & Chaos Engineering | **PASS** | `test_resilience.py` (6/6 tests passed), `jsonable_encoder` validation fix, `17-failure-modes.md` |
-| **Stage 18**| Performance, Telemetry & Observability | **PASS** | `test_performance.py` (5/5 tests passed; 66/66 total), latency benchmarks, audit trails, `18-performance.md` |
-| **Stage 19**| Security Audit & Production Hardening | **PENDING** | Threat model verification, CSP header validation, secret redaction, CORS lockdown |
+| **Stage 18**| Performance, Telemetry & Observability | **PASS** | `test_performance.py` (5/5 tests passed), latency benchmarks, audit trails, `18-performance.md` |
+| **Stage 19**| Security Audit & Production Hardening | **PASS** | `test_security.py` (6/6 tests passed; 72/72 total), secret redaction, CORS lockdown, CSP verification, `19-security.md` |
+| **Stage 20**| Diataxis Documentation Suite & Production README | **PENDING** | Tutorials, How-To guides, Reference API, Architecture explanations, and master `README.md` |
 
 ---
 
@@ -52,15 +53,16 @@ We have completed **Stage 18 (Performance, Telemetry & Observability)**. Perform
 - **Frontend Client**: React 19 + Vite + Tailwind v4 + Phosphor Icons + Marked + DOMPurify (`frontend/dist/` verified)
 - **Backend API**: FastAPI 0.115.6 + Uvicorn + Pydantic v2 + SQLAlchemy 2.0
 - **Runtimes**: Node.js v24.18.0, npm 11.16.0, Python 3.14.6
-- **Test Suite Status**: 66 / 66 backend tests passing across 11 modules (100% green); frontend build 100% green
+- **Test Suite Status**: 72 / 72 backend tests passing across 12 modules (100% green); frontend build 100% green
 
 ---
 
-## 4. Next Immediate Milestone: Stage 19 (Security Audit & Production Hardening)
+## 4. Next Immediate Milestone: Stage 20 (Diataxis Documentation Suite & Production README)
 
-- **Goal**: Perform comprehensive security verification across the codebase:
-  1. Audit environment variable handling (`.env.example` vs `.env`), ensuring zero committed secrets or hardcoded API keys.
-  2. Audit CORS origins configuration (`allow_origins` restricted in production).
-  3. Verify Content Security Policy and anti-sniffing headers on all artifact endpoints.
-  4. Write automated security audit tests in `backend/tests/test_security.py`.
-- **Stop Condition**: Stage 18 is complete and verified. Present Stage 19 plan and stop for approval.
+- **Goal**: Produce production-grade documentation adhering strictly to the Diataxis framework:
+  1. **Tutorial**: Quickstart guide for an evaluator testing the 10-star experience in under 3 minutes.
+  2. **How-To Guides**: Ingesting custom transcripts, configuring local Ollama vs cloud providers, running offline evaluations.
+  3. **Reference**: Complete REST API reference, Pydantic schemas, database DDL, and environment variables table.
+  4. **Explanation**: Architecture decisions (why hybrid vector-lexical RAG, why epistemic refusal cutoff at 0.28, sandbox threat model).
+  5. Master `README.md` with badges, architecture overview, installation instructions, and evaluation script commands.
+- **Stop Condition**: Stage 19 is complete and verified. Present Stage 20 plan and stop for approval.
