@@ -2,14 +2,14 @@
 # The Lenny Growth Assistant
 
 **Date:** 2026-09-13  
-**Active Stage:** Stage 16 — End-to-End Integration & Docker Validation  
-**Overall Status:** GREEN (Stage 16 Complete, Awaiting Human Approval for Stage 17)  
+**Active Stage:** Stage 17 — Failure Modes & Chaos Engineering  
+**Overall Status:** GREEN (Stage 17 Complete, Awaiting Human Approval for Stage 18)  
 
 ---
 
 ## 1. Executive Summary
 
-We have completed **Stage 16 (End-to-End Integration & Docker Validation)**. The full multi-container Docker Compose stack (`db`, `ollama`, `backend`, `frontend`) and bare-metal local development environments are fully orchestrated and verified. Build context and `PYTHONPATH` were aligned across `docker-compose.yml` and `backend/Dockerfile` to bundle `backend/`, `ingestion/`, and `data/` cleanly. Cold-start auto-ingestion was embedded in FastAPI's startup lifespan, guaranteeing that empty databases automatically index transcript vectors. The unified launcher script (`scripts/run_local.ps1`) now auto-detects Docker daemon availability and seamlessly falls back to native execution without breaking developer workflow. All 55 automated backend tests and the React 19 frontend production build remain 100% green.
+We have completed **Stage 17 (Failure Modes & Chaos Engineering)**. The system was subjected to rigorous chaos tests across external provider outages, transient database dropouts, input injection vectors (SQLi, XSS), oversized payloads, and invalid UUID parameters. Pydantic v2 `ValueError` serialization was hardened in FastAPI's exception handler using `jsonable_encoder`, preventing unhandled 500 exceptions during validation failures. Non-blank constraints were added to `MessageCreate`. The automated resilience test suite ([`backend/tests/test_resilience.py`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/backend/tests/test_resilience.py)) verified 6 dedicated failure scenarios. All 61 automated tests across 10 test modules passed with 100% success.
 
 ---
 
@@ -33,8 +33,9 @@ We have completed **Stage 16 (End-to-End Integration & Docker Validation)**. The
 | **Stage 13**| Artifact Generation & Sandboxing | **PASS** | `artifact_renderer.py`, `GET /api/v1/artifacts/{id}/iframe`, `test_sandbox.py` (6/6 tests passed), `13-artifacts.md` |
 | **Stage 14**| Frontend Foundation & Design System | **PASS** | React 19 + Tailwind v4 + Phosphor Icons, `index.css`, `api.js`, `Header.jsx`, `Sidebar.jsx`, `14-frontend.md` |
 | **Stage 15**| Growth Canvas UI & Sandboxed Preview | **PASS** | `GrowthCanvas.jsx`, `EvidenceDrawer.jsx`, `ChatWindow.jsx`, `ChatInput.jsx`, `App.jsx`, browser subagent verification, `15-canvas.md` |
-| **Stage 16**| End-to-End Integration & Docker Validation | **PASS** | `docker-compose.yml` audited, `backend/Dockerfile` multi-module bundle, cold-start auto-ingestion, `run_local.ps1`, `16-integration.md` |
-| **Stage 17**| Failure Modes & Chaos Engineering | **PENDING** | Simulate database crash, Ollama disconnection, malformed payloads, rate-limiting, and network drops |
+| **Stage 16**| End-to-End Integration & Docker Validation | **PASS** | `docker-compose.yml`, `backend/Dockerfile`, cold-start auto-ingestion, `run_local.ps1`, `16-integration.md` |
+| **Stage 17**| Failure Modes & Chaos Engineering | **PASS** | `test_resilience.py` (6/6 tests passed; 61/61 total), `jsonable_encoder` validation fix, `17-failure-modes.md` |
+| **Stage 18**| Performance, Telemetry & Observability | **PENDING** | Latency benchmarks, retrieval observability logs, health check metrics |
 
 ---
 
@@ -50,15 +51,15 @@ We have completed **Stage 16 (End-to-End Integration & Docker Validation)**. The
 - **Frontend Client**: React 19 + Vite + Tailwind v4 + Phosphor Icons + Marked + DOMPurify (`frontend/dist/` verified)
 - **Backend API**: FastAPI 0.115.6 + Uvicorn + Pydantic v2 + SQLAlchemy 2.0
 - **Runtimes**: Node.js v24.18.0, npm 11.16.0, Python 3.14.6
-- **Test Suite Status**: 55 / 55 backend tests passing across 9 modules (100% green); frontend build 100% green
+- **Test Suite Status**: 61 / 61 backend tests passing across 10 modules (100% green); frontend build 100% green
 
 ---
 
-## 4. Next Immediate Milestone: Stage 17 (Failure Modes & Chaos Engineering)
+## 4. Next Immediate Milestone: Stage 18 (Performance, Telemetry & Observability)
 
-- **Goal**: Systematically validate resilience under adverse conditions:
-  1. Test graceful behavior when external LLM services (Ollama/OpenAI/Anthropic) are unreachable or timeout.
-  2. Test database reconnection resilience and recovery after transient dropouts.
-  3. Test malformed JSON, SQL injection vectors, and oversized prompt payloads against API schemas.
-  4. Write automated chaos/failure tests in `backend/tests/test_resilience.py`.
-- **Stop Condition**: Stage 16 is complete and verified. Present Stage 17 plan and stop for approval.
+- **Goal**: Benchmark end-to-end latency, audit telemetry headers, and verify retrieval observability logs:
+  1. Profile retrieval latency (<50ms target for vector+lexical hybrid search).
+  2. Verify `X-Request-ID` and `X-Response-Time-MS` headers on all endpoints.
+  3. Validate structured logging to `RetrievalLog` persistence table.
+  4. Write automated performance tests in `backend/tests/test_performance.py`.
+- **Stop Condition**: Stage 17 is complete and verified. Present Stage 18 plan and stop for approval.

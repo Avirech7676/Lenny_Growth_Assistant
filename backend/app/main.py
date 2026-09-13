@@ -4,6 +4,7 @@ from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.encoders import jsonable_encoder
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from contextlib import asynccontextmanager
 import time
@@ -109,7 +110,7 @@ async def http_exception_handler(request: Request, exc: StarletteHTTPException):
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     request_id = getattr(request.state, "request_id", f"req_{uuid.uuid4().hex[:10]}")
-    errors = exc.errors()
+    errors = jsonable_encoder(exc.errors())
     error_msg = errors[0]["msg"] if errors else "Request validation failed"
     return JSONResponse(
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,

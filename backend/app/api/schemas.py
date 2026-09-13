@@ -1,6 +1,6 @@
 """Pydantic request and response schemas with strict validation."""
 
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 from typing import List, Optional, Dict, Any, Literal
 from datetime import datetime
 
@@ -89,6 +89,13 @@ class MessageCreate(BaseModel):
         default=None,
         description="Optional model provider override",
     )
+
+    @field_validator("content")
+    @classmethod
+    def validate_content_not_blank(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError("Content cannot be blank or whitespace-only")
+        return v
 
 class MessageResponse(BaseModel):
     id: str
