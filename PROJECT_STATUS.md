@@ -2,14 +2,14 @@
 # The Lenny Growth Assistant
 
 **Date:** 2026-09-13  
-**Active Stage:** Stage 17 — Failure Modes & Chaos Engineering  
-**Overall Status:** GREEN (Stage 17 Complete, Awaiting Human Approval for Stage 18)  
+**Active Stage:** Stage 18 — Performance, Telemetry & Observability  
+**Overall Status:** GREEN (Stage 18 Complete, Awaiting Human Approval for Stage 19)  
 
 ---
 
 ## 1. Executive Summary
 
-We have completed **Stage 17 (Failure Modes & Chaos Engineering)**. The system was subjected to rigorous chaos tests across external provider outages, transient database dropouts, input injection vectors (SQLi, XSS), oversized payloads, and invalid UUID parameters. Pydantic v2 `ValueError` serialization was hardened in FastAPI's exception handler using `jsonable_encoder`, preventing unhandled 500 exceptions during validation failures. Non-blank constraints were added to `MessageCreate`. The automated resilience test suite ([`backend/tests/test_resilience.py`](file:///c:/Users/avina/OneDrive/Desktop/Lenny_Growth_Assistant/backend/tests/test_resilience.py)) verified 6 dedicated failure scenarios. All 61 automated tests across 10 test modules passed with 100% success.
+We have completed **Stage 18 (Performance, Telemetry & Observability)**. Performance benchmarks, audit trails, and concurrency limits were tested and validated. Hybrid retrieval queries execute reliably within SLA, connection pool pings resolve in <25ms, and 10 concurrent turns across 5 distinct sessions execute without deadlocks or thread collisions. End-to-end telemetry headers (`X-Request-ID` and `X-Response-Time-MS`) were verified across all major routes, and every retrieval query logs structured telemetry into `RetrievalLog`. All 66 automated tests across 11 test modules passed with 100% success.
 
 ---
 
@@ -34,8 +34,9 @@ We have completed **Stage 17 (Failure Modes & Chaos Engineering)**. The system w
 | **Stage 14**| Frontend Foundation & Design System | **PASS** | React 19 + Tailwind v4 + Phosphor Icons, `index.css`, `api.js`, `Header.jsx`, `Sidebar.jsx`, `14-frontend.md` |
 | **Stage 15**| Growth Canvas UI & Sandboxed Preview | **PASS** | `GrowthCanvas.jsx`, `EvidenceDrawer.jsx`, `ChatWindow.jsx`, `ChatInput.jsx`, `App.jsx`, browser subagent verification, `15-canvas.md` |
 | **Stage 16**| End-to-End Integration & Docker Validation | **PASS** | `docker-compose.yml`, `backend/Dockerfile`, cold-start auto-ingestion, `run_local.ps1`, `16-integration.md` |
-| **Stage 17**| Failure Modes & Chaos Engineering | **PASS** | `test_resilience.py` (6/6 tests passed; 61/61 total), `jsonable_encoder` validation fix, `17-failure-modes.md` |
-| **Stage 18**| Performance, Telemetry & Observability | **PENDING** | Latency benchmarks, retrieval observability logs, health check metrics |
+| **Stage 17**| Failure Modes & Chaos Engineering | **PASS** | `test_resilience.py` (6/6 tests passed), `jsonable_encoder` validation fix, `17-failure-modes.md` |
+| **Stage 18**| Performance, Telemetry & Observability | **PASS** | `test_performance.py` (5/5 tests passed; 66/66 total), latency benchmarks, audit trails, `18-performance.md` |
+| **Stage 19**| Security Audit & Production Hardening | **PENDING** | Threat model verification, CSP header validation, secret redaction, CORS lockdown |
 
 ---
 
@@ -51,15 +52,15 @@ We have completed **Stage 17 (Failure Modes & Chaos Engineering)**. The system w
 - **Frontend Client**: React 19 + Vite + Tailwind v4 + Phosphor Icons + Marked + DOMPurify (`frontend/dist/` verified)
 - **Backend API**: FastAPI 0.115.6 + Uvicorn + Pydantic v2 + SQLAlchemy 2.0
 - **Runtimes**: Node.js v24.18.0, npm 11.16.0, Python 3.14.6
-- **Test Suite Status**: 61 / 61 backend tests passing across 10 modules (100% green); frontend build 100% green
+- **Test Suite Status**: 66 / 66 backend tests passing across 11 modules (100% green); frontend build 100% green
 
 ---
 
-## 4. Next Immediate Milestone: Stage 18 (Performance, Telemetry & Observability)
+## 4. Next Immediate Milestone: Stage 19 (Security Audit & Production Hardening)
 
-- **Goal**: Benchmark end-to-end latency, audit telemetry headers, and verify retrieval observability logs:
-  1. Profile retrieval latency (<50ms target for vector+lexical hybrid search).
-  2. Verify `X-Request-ID` and `X-Response-Time-MS` headers on all endpoints.
-  3. Validate structured logging to `RetrievalLog` persistence table.
-  4. Write automated performance tests in `backend/tests/test_performance.py`.
-- **Stop Condition**: Stage 17 is complete and verified. Present Stage 18 plan and stop for approval.
+- **Goal**: Perform comprehensive security verification across the codebase:
+  1. Audit environment variable handling (`.env.example` vs `.env`), ensuring zero committed secrets or hardcoded API keys.
+  2. Audit CORS origins configuration (`allow_origins` restricted in production).
+  3. Verify Content Security Policy and anti-sniffing headers on all artifact endpoints.
+  4. Write automated security audit tests in `backend/tests/test_security.py`.
+- **Stop Condition**: Stage 18 is complete and verified. Present Stage 19 plan and stop for approval.
