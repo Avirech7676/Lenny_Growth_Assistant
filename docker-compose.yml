@@ -1,0 +1,91 @@
+services:
+  # ============================================================================
+  # 1. PostgreSQL 16 with pgvector Extension
+  # ============================================================================
+  db:
+    image: pgvector/pgvector:pg16
+    container_name: lenny_growth_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lenny_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lenny_secure_password_2026}
+      POSTGRES_DB: ${POSTGRES_DB:-lenny_growth_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lenny_user} -d ${POSTGRES_DB:-lenny_growth_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - lenny-network
+
+  # ============================================================================
+  # 2. Local Ollama Engine (Zero-Cost Local Inference)
+  # ============================================================================
+  ollama:
+    image: ollama/ollama:latest
+    container_name: lenny_growth_ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - lenny-network
+
+  # ============================================================================
+  # 3. FastAPI Backend Service & Agent Orchestrator
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: lenny_growth_backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-lenny_user}:${POSTGRES_PASSWORD:-lenny_secure_password_2026}@db:5432/${POSTGRES_DB:-lenny_growth_db}
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=${OLLAMA_MODEL:-llama3.2:latest}
+      - OLLAMA_EMBED_MODEL=${OLLAMA_EMBED_MODEL:-nomic-embed-text:latest}
+      - LLM_PROVIDER=${LLM_PROVIDER:-ollama}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ANTHROPIC_MODEL=${ANTHROPIC_MODEL:-claude-3-5-sonnet-latest}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - COSINE_SIMILARITY_THRESHOLD=${COSINE_SIMILARITY_THRESHOLD:-0.65}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - lenny-network
+
+  # ============================================================================
+  # 4. Frontend Split-Screen Growth Canvas
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: lenny_growth_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - backend
+    networks:
+      - lenny-network
+
+networks:
+  lenny-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  ollama_data:
