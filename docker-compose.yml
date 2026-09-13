@@ -42,8 +42,8 @@ services:
   # ============================================================================
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: lenny_growth_backend
     restart: unless-stopped
     ports:
@@ -60,9 +60,16 @@ services:
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - COSINE_SIMILARITY_THRESHOLD=${COSINE_SIMILARITY_THRESHOLD:-0.65}
+      - PYTHONPATH=.:backend
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
     networks:
       - lenny-network
 
@@ -78,7 +85,8 @@ services:
     ports:
       - "${FRONTEND_PORT:-3000}:80"
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
       - lenny-network
 

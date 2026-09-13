@@ -2,14 +2,14 @@
 # The Lenny Growth Assistant
 
 **Date:** 2026-09-13  
-**Active Stage:** Stage 15 — Interactive Growth Canvas UI & Sandboxed Preview  
-**Overall Status:** GREEN (Stages 14 & 15 Complete, Awaiting Human Approval for Stage 16)  
+**Active Stage:** Stage 16 — End-to-End Integration & Docker Validation  
+**Overall Status:** GREEN (Stage 16 Complete, Awaiting Human Approval for Stage 17)  
 
 ---
 
 ## 1. Executive Summary
 
-We have completed **Stage 14 (Frontend Foundation & Design System)** and **Stage 15 (Interactive Growth Canvas UI & Sandboxed Preview)**. A complete React 19 application has been built in `frontend/` featuring strict adherence to `DESIGN.md` (Deep Slate `#0A0E17`, Surface `#0F172A`, Electric Emerald `#10B981`, `Plus Jakarta Sans` / `Inter` / `JetBrains Mono` typography, Phosphor icons, and spring animations). The user interface delivers a split-screen **Growth Canvas** with a conversational chat stream, real-time LLM health telemetry, 4-mode skill intent selector, epistemic refusal warning banners, clickable citation pills, and an origin-isolated sandboxed iframe workspace for interactive artifacts. The production bundle compiled cleanly with 0 errors (`dist/`, 432 kB gzipped), and end-to-end user workflows were verified via automated browser subagent with full video recording.
+We have completed **Stage 16 (End-to-End Integration & Docker Validation)**. The full multi-container Docker Compose stack (`db`, `ollama`, `backend`, `frontend`) and bare-metal local development environments are fully orchestrated and verified. Build context and `PYTHONPATH` were aligned across `docker-compose.yml` and `backend/Dockerfile` to bundle `backend/`, `ingestion/`, and `data/` cleanly. Cold-start auto-ingestion was embedded in FastAPI's startup lifespan, guaranteeing that empty databases automatically index transcript vectors. The unified launcher script (`scripts/run_local.ps1`) now auto-detects Docker daemon availability and seamlessly falls back to native execution without breaking developer workflow. All 55 automated backend tests and the React 19 frontend production build remain 100% green.
 
 ---
 
@@ -33,16 +33,17 @@ We have completed **Stage 14 (Frontend Foundation & Design System)** and **Stage
 | **Stage 13**| Artifact Generation & Sandboxing | **PASS** | `artifact_renderer.py`, `GET /api/v1/artifacts/{id}/iframe`, `test_sandbox.py` (6/6 tests passed), `13-artifacts.md` |
 | **Stage 14**| Frontend Foundation & Design System | **PASS** | React 19 + Tailwind v4 + Phosphor Icons, `index.css`, `api.js`, `Header.jsx`, `Sidebar.jsx`, `14-frontend.md` |
 | **Stage 15**| Growth Canvas UI & Sandboxed Preview | **PASS** | `GrowthCanvas.jsx`, `EvidenceDrawer.jsx`, `ChatWindow.jsx`, `ChatInput.jsx`, `App.jsx`, browser subagent verification, `15-canvas.md` |
-| **Stage 16**| End-to-End Integration & Docker Validation | **PENDING** | Docker Compose full-stack startup (`db`, `ollama`, `backend`, `frontend`), cross-container networking |
+| **Stage 16**| End-to-End Integration & Docker Validation | **PASS** | `docker-compose.yml` audited, `backend/Dockerfile` multi-module bundle, cold-start auto-ingestion, `run_local.ps1`, `16-integration.md` |
+| **Stage 17**| Failure Modes & Chaos Engineering | **PENDING** | Simulate database crash, Ollama disconnection, malformed payloads, rate-limiting, and network drops |
 
 ---
 
 ## 3. Environment & Tooling Diagnostics
 
-- **Container Engine**: Docker v29.6.1 & Docker Compose v5.3.0
+- **Container Engine**: Docker Compose configuration validated (`docker compose config` = valid)
 - **Database**: PostgreSQL 16 + pgvector (Docker) with verified local SQLite fallback (`lenny_growth_local.db`)
 - **Knowledge Base**: 13 indexed chunks across Brian Chesky and Shreyas Doshi transcripts; cached in `data/transcripts_cache.json`
-- **Retrieval Engine**: Hybrid vector-lexical scoring with strict epistemic cutoff gate
+- **Retrieval Engine**: Hybrid vector-lexical scoring with strict epistemic cutoff gate (0.28)
 - **Agent Orchestrator**: Multi-turn history, Bleach + script purging CSS-sanitized artifact extraction, provider abstraction (Ollama/Anthropic/Fallback)
 - **Model Bridge**: Ollama (`llama3.2`), Anthropic (`claude-3-5-sonnet`), OpenAI (`gpt-4o`), and deterministic offline synthesizer
 - **Sandboxing Pipeline**: `GET /api/v1/artifacts/{id}/iframe` with strict CSP (`default-src 'none'`), `nosniff`, `SAMEORIGIN`, `no-referrer`
@@ -53,11 +54,11 @@ We have completed **Stage 14 (Frontend Foundation & Design System)** and **Stage
 
 ---
 
-## 4. Next Immediate Milestone: Stage 16 (End-to-End Integration & Docker Validation)
+## 4. Next Immediate Milestone: Stage 17 (Failure Modes & Chaos Engineering)
 
-- **Goal**: Validate full-stack containerization and multi-container orchestration:
-  1. Audit `docker-compose.yml`, `backend/Dockerfile`, and `frontend/Dockerfile`.
-  2. Verify frontend proxy / nginx configuration for `/api` routing to backend.
-  3. Validate database initialization and transcript auto-indexing on container cold start.
-  4. Run containerized smoke tests verifying end-to-end message delivery.
-- **Stop Condition**: Stages 14 and 15 are complete and verified. Present Stage 16 plan and stop for approval.
+- **Goal**: Systematically validate resilience under adverse conditions:
+  1. Test graceful behavior when external LLM services (Ollama/OpenAI/Anthropic) are unreachable or timeout.
+  2. Test database reconnection resilience and recovery after transient dropouts.
+  3. Test malformed JSON, SQL injection vectors, and oversized prompt payloads against API schemas.
+  4. Write automated chaos/failure tests in `backend/tests/test_resilience.py`.
+- **Stop Condition**: Stage 16 is complete and verified. Present Stage 17 plan and stop for approval.

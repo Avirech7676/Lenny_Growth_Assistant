@@ -22,6 +22,23 @@ async def lifespan(app: FastAPI):
     """Application lifespan: initialize database tables and resources."""
     logger.info("Starting up %s v%s...", settings.PROJECT_NAME, settings.VERSION)
     init_db()
+
+    # Cold-start auto-ingestion: populate knowledge base if empty
+    try:
+        from app.db.session import get_db_session
+        from app.db.models import TranscriptChunk
+        with get_db_session() as db:
+            chunk_count = db.query(TranscriptChunk).count()
+            if chunk_count == 0:
+                logger.info("No transcript chunks found in database. Starting cold-start auto-ingestion...")
+                from ingestion.ingest import ingest_all_transcripts
+                total_ingested = ingest_all_transcripts()
+                logger.info("Cold-start auto-ingestion complete: %d chunks indexed.", total_ingested)
+            else:
+                logger.info("Found %d indexed transcript chunks in database.", chunk_count)
+    except Exception as e:
+        logger.warning("Cold-start auto-ingestion warning: %s", e)
+
     logger.info("Startup complete. Ready to receive requests.")
     yield
     logger.info("Shutting down %s...", settings.PROJECT_NAME)
