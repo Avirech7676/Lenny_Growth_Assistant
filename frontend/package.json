@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@designcodeio/threeui": "^1.2.0",
     "@phosphor-icons/react": "^2.1.7",
     "dompurify": "^3.2.3",
     "marked": "^15.0.4",

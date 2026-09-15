@@ -32,13 +32,18 @@ SessionLocal = sessionmaker(
 )
 
 
+import os
+
+WORKSPACE_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.."))
+SQLITE_DB_PATH = os.path.join(WORKSPACE_ROOT, "lenny_growth_local.db").replace("\\", "/")
+
 def _activate_sqlite_fallback() -> None:
     """Seamlessly reconfigure database engine and SessionLocal to use local SQLite."""
     global engine, is_sqlite
-    logger.info("Activating seamless local SQLite database fallback (lenny_growth_local.db)...")
+    logger.info("Activating seamless local SQLite database fallback (%s)...", SQLITE_DB_PATH)
     is_sqlite = True
     engine = create_engine(
-        "sqlite:///./lenny_growth_local.db",
+        f"sqlite:///{SQLITE_DB_PATH}",
         connect_args={"check_same_thread": False},
     )
     SessionLocal.configure(bind=engine)

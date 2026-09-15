@@ -1,13 +1,14 @@
-"""Automated testing for sandboxed artifact rendering, CSP headers, and XSS defense."""
-
 import sys
 import os
+
+# Add backend directory to sys.path
+backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if backend_dir not in sys.path:
+    sys.path.insert(0, backend_dir)
+
 import uuid
 import pytest
 from fastapi.testclient import TestClient
-
-# Add backend directory to sys.path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.main import app
 from app.db.session import get_db_session

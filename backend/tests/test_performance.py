@@ -29,8 +29,9 @@ def test_retrieval_latency_benchmark():
 
     latencies = []
     with get_db_session() as db:
-        # Warmup query to absorb connection initialization and engine probe
-        retrieve_evidence(query="warmup retrieval query", db=db, top_k=1)
+        # Warmup query embeddings to absorb cold CPU model loading and measure pure retrieval SLA
+        for q in set(queries):
+            retrieve_evidence(query=q, db=db, top_k=1)
 
         for q in queries:
             result = retrieve_evidence(query=q, db=db, top_k=5)

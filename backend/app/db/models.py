@@ -66,6 +66,12 @@ class Session(Base):
         cascade="all, delete-orphan",
         order_by="Artifact.created_at.desc()",
     )
+    uploaded_documents = relationship(
+        "UploadedDocument",
+        back_populates="session",
+        cascade="all, delete-orphan",
+        order_by="UploadedDocument.created_at.desc()",
+    )
 
     def to_dict(self) -> Dict[str, Any]:
         return {
@@ -145,6 +151,47 @@ class Message(Base):
     artifacts = relationship("Artifact", back_populates="message")
 
     def to_dict(self) -> Dict[str, Any]:
+        cits = json.loads(self.citations) if self.citations else []
+        
+        cap = None
+        int_mode = None
+        if self.mode == "coding":
+            cap = "coding"
+            int_mode = "real_world"
+        elif self.mode == "debugging":
+            cap = "debugging"
+            int_mode = "real_world"
+        elif self.mode == "architecture":
+            cap = "architecture"
+            int_mode = "real_world"
+        elif self.mode == "deep_research":
+            cap = "deep_research"
+            int_mode = "real_world"
+        elif self.mode == "search":
+            cap = "web_research"
+            int_mode = "real_world"
+        elif self.mode == "lenny":
+            cap = "lenny_research"
+            int_mode = "lenny"
+        elif self.mode == "chat":
+            cap = "general_qa"
+            int_mode = "real_world"
+        else:
+            has_ext = any(c.get("source_type") == "external" or c.get("url") for c in cits)
+            has_lenny = any(c.get("source_type") == "transcript" for c in cits)
+            if has_ext and has_lenny:
+                cap = "hybrid_research"
+                int_mode = "hybrid"
+            elif has_ext:
+                cap = "deep_research"
+                int_mode = "real_world"
+            elif has_lenny:
+                cap = "lenny_research"
+                int_mode = "lenny"
+            else:
+                cap = "general_qa"
+                int_mode = "real_world"
+
         return {
             "id": self.id,
             "session_id": self.session_id,
@@ -153,7 +200,9 @@ class Message(Base):
             "mode": self.mode,
             "model": self.model,
             "latency_ms": self.latency_ms,
-            "citations": json.loads(self.citations) if self.citations else [],
+            "citations": cits,
+            "intelligence_mode": int_mode,
+            "capability": cap,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -384,3 +433,62 @@ class RetrievalLog(Base):
         nullable=False,
         default=utcnow,
     )
+
+
+class UploadedDocument(Base):
+    """Uploaded document parsed and associated with a conversation session."""
+
+    __tablename__ = "uploaded_documents"
+
+    id = Column(
+        String(36),
+        primary_key=True,
+        default=lambda: str(uuid.uuid4()),
+        index=True,
+    )
+    session_id = Column(
+        String(36),
+        ForeignKey("sessions.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    filename = Column(
+        String(255),
+        nullable=False,
+    )
+    file_type = Column(
+        String(50),
+        nullable=False,
+        default="unknown",
+    )
+    extracted_text = Column(
+        Text,
+        nullable=False,
+    )
+    char_count = Column(
+        Integer,
+        default=0,
+    )
+    summary = Column(
+        Text,
+        nullable=True,
+        default="",
+    )
+    created_at = Column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=utcnow,
+    )
+
+    session = relationship("Session", back_populates="uploaded_documents")
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "session_id": self.session_id,
+            "filename": self.filename,
+            "file_type": self.file_type,
+            "char_count": self.char_count,
+            "summary": self.summary,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }

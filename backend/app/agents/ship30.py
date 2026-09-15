@@ -1,4 +1,16 @@
-"""Ship 30 for 30 dedicated viral essay engine, structural analyzer, and artifact builder."""
+"""Ship 30 for 30 dedicated viral essay engine, structural analyzer, and artifact builder.
+
+SOURCE & REFERENCE ATTRIBUTION:
+Writing principles, essay architecture, and structural invariants are derived directly from
+Nicolas Cole & Dickie Bush's official 'Ship 30 for 30' curriculum and foundational text
+'The Art and Business of Online Writing: How to Beat the Game of Modern Digital Content' (Nicolas Cole),
+specifically:
+1. The 1-2 sentence counterintuitive Hook attacking conventional dogma.
+2. The Tension / Antagonist defining the cost of status-quo conventional wisdom.
+3. 3 Core Pillars with bold anchor sentences, single-concept paragraphs, and direct quotes.
+4. The 5-Point Actionable Takeaway checklist actionable immediately.
+5. The 1-sentence Punchy Outro creating closure.
+"""
 
 import re
 from typing import Dict, Any, List, Optional

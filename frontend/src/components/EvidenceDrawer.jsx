@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  FileText,
   Quotes,
-  User,
   ShieldCheck,
   WarningCircle,
-  Tag,
+  Globe,
+  Microphone,
+  ArrowSquareOut,
+  Sparkle,
+  CheckCircle,
+  Buildings,
+  GraduationCap,
+  Newspaper,
+  Code,
+  ChartBar,
+  ChatCircleDots,
 } from '@phosphor-icons/react';
 
 export default function EvidenceDrawer({
@@ -14,102 +22,250 @@ export default function EvidenceDrawer({
   isGrounded = true,
   query = '',
 }) {
-  const getSpeakerColor = (guest) => {
-    const lower = (guest || '').toLowerCase();
-    if (lower.includes('chesky')) return 'text-amber-400 bg-amber-500/10 border-amber-500/20';
-    if (lower.includes('doshi')) return 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20';
-    return 'text-blue-400 bg-blue-500/10 border-blue-500/20';
+  const [selectedFilter, setSelectedFilter] = useState('all');
+
+  const getCategoryMeta = (category, isExternal) => {
+    if (!isExternal) {
+      return {
+        label: 'Lenny Podcast',
+        icon: Microphone,
+        color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
+      };
+    }
+    switch (category) {
+      case 'official':
+      case 'government':
+        return {
+          label: 'Official / Primary',
+          icon: Buildings,
+          color: 'text-indigo-300 bg-indigo-500/15 border-indigo-500/35',
+        };
+      case 'academic':
+        return {
+          label: 'Academic Research',
+          icon: GraduationCap,
+          color: 'text-purple-300 bg-purple-500/15 border-purple-500/35',
+        };
+      case 'news':
+        return {
+          label: 'Journalistic News',
+          icon: Newspaper,
+          color: 'text-sky-300 bg-sky-500/15 border-sky-500/35',
+        };
+      case 'technical':
+        return {
+          label: 'Technical / Docs',
+          icon: Code,
+          color: 'text-emerald-300 bg-emerald-500/15 border-emerald-500/35',
+        };
+      case 'industry':
+      case 'financial':
+        return {
+          label: 'Industry / Financial',
+          icon: ChartBar,
+          color: 'text-blue-300 bg-blue-500/15 border-blue-500/35',
+        };
+      case 'community':
+        return {
+          label: 'Community / Forums',
+          icon: ChatCircleDots,
+          color: 'text-amber-300 bg-amber-500/15 border-amber-500/35',
+        };
+      default:
+        return {
+          label: 'Web Reference',
+          icon: Globe,
+          color: 'text-cyan-300 bg-cyan-500/15 border-cyan-500/35',
+        };
+    }
   };
 
+  // Group and tally categories
+  const categoriesPresent = evidence.reduce((acc, c) => {
+    const isExt = c.source_type === 'external';
+    const cat = isExt ? (c.source_category || 'reference') : 'transcript';
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
+
+  const filteredEvidence = evidence.filter((c) => {
+    if (selectedFilter === 'all') return true;
+    if (selectedFilter === 'transcript') {
+      return c.source_type === 'transcript' || !c.source_type;
+    }
+    return c.source_category === selectedFilter || (!c.source_category && selectedFilter === 'reference');
+  });
+
   return (
-    <div className="h-full flex flex-col bg-slate-950/60 overflow-hidden">
+    <div className="h-full flex flex-col bg-[#0B111E] overflow-hidden">
       {/* Evidence Summary Header */}
-      <div className="p-4 border-b border-slate-800/80 bg-slate-900/60 space-y-2">
+      <div className="p-3.5 border-b border-slate-800/80 bg-[#0E1526]/90 space-y-2.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Quotes size={18} className="text-emerald-400" weight="fill" />
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-300 font-mono">
-              Grounding Evidence
+            <Quotes size={16} className="text-emerald-400" weight="fill" />
+            <span className="text-xs font-bold uppercase tracking-wider text-white font-mono">
+              Multi-Source Grounding Evidence
             </span>
           </div>
-          <div className="flex items-center gap-2">
+          <div>
             {isGrounded ? (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                 <ShieldCheck size={12} weight="bold" />
-                Grounded ({Math.round(topSimilarity * 100)}%)
+                Verified Grounding
               </span>
             ) : (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-medium bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
                 <WarningCircle size={12} weight="bold" />
-                Below Cutoff (&lt;28%)
+                Adaptive Web Research
               </span>
             )}
           </div>
         </div>
 
+        {/* Category Breakdown Chips / Filter Bar */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-thin">
+          <button
+            onClick={() => setSelectedFilter('all')}
+            className={`px-2.5 py-1 rounded-lg text-xs font-mono font-medium whitespace-nowrap transition-colors cursor-pointer active:scale-[0.98] ${
+              selectedFilter === 'all'
+                ? 'bg-slate-800 text-white border border-slate-700 font-semibold'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            All ({evidence.length})
+          </button>
+
+          {categoriesPresent.transcript > 0 && (
+            <button
+              onClick={() => setSelectedFilter('transcript')}
+              className={`px-2.5 py-1 rounded-lg text-xs font-mono font-medium flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer active:scale-[0.98] ${
+                selectedFilter === 'transcript'
+                  ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-semibold'
+                  : 'text-slate-400 hover:text-emerald-400'
+              }`}
+            >
+              <Microphone size={12} weight="bold" />
+              <span>Lenny ({categoriesPresent.transcript})</span>
+            </button>
+          )}
+
+          {Object.entries(categoriesPresent)
+            .filter(([cat]) => cat !== 'transcript')
+            .map(([cat, count]) => {
+              const meta = getCategoryMeta(cat, true);
+              const isActive = selectedFilter === cat;
+              const IconComp = meta.icon;
+              return (
+                <button
+                  key={cat}
+                  onClick={() => setSelectedFilter(cat)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-mono font-medium flex items-center gap-1.5 whitespace-nowrap transition-colors cursor-pointer active:scale-[0.98] ${
+                    isActive
+                      ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-semibold'
+                      : 'text-slate-400 hover:text-cyan-300'
+                  }`}
+                >
+                  <IconComp size={12} weight="bold" />
+                  <span className="capitalize">{cat} ({count})</span>
+                </button>
+              );
+            })}
+        </div>
+
         {query && (
-          <p className="text-xs text-slate-400 italic truncate">
+          <p className="text-[11px] text-slate-400 truncate italic font-sans">
             Query: "{query}"
           </p>
         )}
       </div>
 
-      {/* Chunks List */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {evidence.length === 0 ? (
-          <div className="text-center py-12 px-4 text-slate-500 text-xs space-y-2">
-            <FileText size={32} className="mx-auto text-slate-600 mb-2" />
-            <p>No citations active for this query turn.</p>
-            <p className="text-[11px] text-slate-600">
-              Submit a prompt to retrieve semantic evidence from Lenny's transcripts.
-            </p>
+      {/* Sources Stream */}
+      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+        {filteredEvidence.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center p-6 text-slate-500 space-y-2">
+            <Quotes size={24} className="text-slate-600" />
+            <p className="text-xs">No citations matching the active filter.</p>
           </div>
         ) : (
-          evidence.map((chunk, idx) => {
-            const simPercent = Math.round((chunk.similarity || 0) * 100);
+          filteredEvidence.map((src, idx) => {
+            const isExternal = src.source_type === 'external';
+            const catMeta = getCategoryMeta(src.source_category, isExternal);
+            const scorePercent = Math.round((src.similarity || 0) * 100);
+            const CatIcon = catMeta.icon;
+
             return (
               <div
-                key={chunk.chunk_id || idx}
-                className="p-3.5 bg-slate-900/80 border border-slate-800 rounded-xl space-y-2 hover:border-slate-700 transition-colors shadow-sm"
+                key={src.chunk_id || idx}
+                className="p-3.5 bg-slate-900/90 border border-slate-800 rounded-xl space-y-2.5 shadow-sm hover:border-slate-700/80 transition-colors"
               >
-                {/* Speaker & Score Bar */}
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+                {/* Source Header: Category + Domain + Evidence Strength */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Category Badge */}
                     <span
-                      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-medium border ${getSpeakerColor(
-                        chunk.guest
-                      )}`}
+                      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[10px] font-mono font-bold uppercase border ${catMeta.color}`}
                     >
-                      <User size={12} weight="bold" />
-                      {chunk.guest || 'Podcast Guest'}
+                      <CatIcon size={11} weight="bold" />
+                      <span>{catMeta.label}</span>
+                    </span>
+
+                    {/* Domain / Speaker */}
+                    <span className="text-[11px] font-mono font-semibold text-slate-300">
+                      {isExternal ? (src.domain || 'Verified Web') : (src.guest || 'Lenny Rachitsky')}
                     </span>
                   </div>
-                  <div className="flex items-center gap-1.5 font-mono text-[11px] text-slate-400">
-                    <span>{simPercent}%</span>
-                    <div className="w-12 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-emerald-400 transition-all"
-                        style={{ width: `${Math.min(100, Math.max(5, simPercent))}%` }}
-                      />
-                    </div>
+
+                  {/* Qualitative Evidence Strength or Similarity Score */}
+                  <div className="flex items-center gap-1">
+                    {src.evidence_strength && (
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-mono font-bold uppercase border ${
+                        src.evidence_strength === 'Strong'
+                          ? 'bg-emerald-950/60 border-emerald-500/40 text-emerald-400'
+                          : src.evidence_strength === 'Moderate'
+                          ? 'bg-cyan-950/60 border-cyan-500/40 text-cyan-300'
+                          : 'bg-amber-950/60 border-amber-500/40 text-amber-300'
+                      }`}>
+                        {src.evidence_strength}
+                      </span>
+                    )}
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold bg-slate-800 text-slate-300 border border-slate-700">
+                      {scorePercent}%
+                    </span>
                   </div>
                 </div>
 
-                {/* Episode Title */}
-                {chunk.title && (
-                  <p className="text-xs font-semibold text-slate-200">
-                    {chunk.title}
-                  </p>
+                {/* Episode / Article Title */}
+                <h4 className="text-xs font-semibold text-slate-100 line-clamp-2 leading-snug font-heading">
+                  {src.title}
+                </h4>
+
+                {/* Why it was useful */}
+                {src.why_useful && (
+                  <div className="px-2.5 py-1.5 rounded-lg bg-[#070D18] border border-cyan-500/20 text-[11px] text-cyan-300/90 font-mono">
+                    <span className="text-slate-400 font-medium">Relevance: </span>
+                    {src.why_useful}
+                  </div>
                 )}
 
                 {/* Excerpt Quote */}
-                <blockquote className="text-xs text-slate-300 bg-slate-950/70 p-2.5 rounded-lg border-l-2 border-emerald-500/80 italic leading-relaxed font-sans">
-                  "{chunk.excerpt || chunk.text || 'No transcript text available'}"
-                </blockquote>
+                {src.excerpt && (
+                  <blockquote className="p-2.5 rounded-lg bg-slate-950/80 border-l-2 border-emerald-500 text-xs text-slate-300 italic leading-relaxed font-sans">
+                    "{src.excerpt}"
+                  </blockquote>
+                )}
 
-                {chunk.chunk_id && (
-                  <div className="text-[10px] font-mono text-slate-500 text-right">
-                    chunk:{chunk.chunk_id}
+                {/* External Link (if available) */}
+                {src.url && (
+                  <div className="pt-0.5">
+                    <a
+                      href={src.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-[11px] text-cyan-400 hover:text-cyan-300 hover:underline font-mono"
+                    >
+                      <span>Source Link ({src.domain || 'External'})</span>
+                      <ArrowSquareOut size={11} />
+                    </a>
                   </div>
                 )}
               </div>

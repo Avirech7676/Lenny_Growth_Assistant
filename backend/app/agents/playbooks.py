@@ -38,7 +38,7 @@ def validate_growth_playbook(content: str) -> PlaybookValidationResult:
         feedback.append("Pillar 4 (Monetization) is missing.")
 
     # 2. Check for guest attribution / case study
-    guest_referenced = bool(re.search(r'(?:Brian\s*Chesky|Shreyas\s*Doshi|Lenny)', text_only, re.IGNORECASE))
+    guest_referenced = bool(re.search(r'(?:Brian\s*Chesky|Chesky|Airbnb|Shreyas\s*Doshi|Shreyas|Doshi|Lenny)', text_only, re.IGNORECASE))
     if not guest_referenced:
         feedback.append("No explicit guest case study referenced.")
 

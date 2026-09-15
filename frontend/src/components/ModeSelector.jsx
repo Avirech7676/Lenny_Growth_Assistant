@@ -50,7 +50,7 @@ export default function ModeSelector({ activeMode, onSelectMode, disabled = fals
             onClick={() => onSelectMode(m.id)}
             className={`flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
               isActive
-                ? 'bg-slate-800 text-emerald-400 border border-emerald-500/30 shadow-[0_0_12px_rgba(16,185,129,0.15)] font-semibold'
+                ? 'bg-slate-800 text-cyan-300 border border-cyan-500/40 shadow-[0_0_14px_rgba(6,182,212,0.25)] font-semibold'
                 : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/40 border border-transparent'
             } ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.98]'}`}
             title={m.description}
@@ -60,7 +60,7 @@ export default function ModeSelector({ activeMode, onSelectMode, disabled = fals
             <span
               className={`hidden md:inline-block px-1.5 py-0.5 text-[9px] font-mono rounded ${
                 isActive
-                  ? 'bg-emerald-500/20 text-emerald-300'
+                  ? 'bg-cyan-500/20 text-cyan-300'
                   : 'bg-slate-800/80 text-slate-500'
               }`}
             >

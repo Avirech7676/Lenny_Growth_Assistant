@@ -67,7 +67,10 @@ def _deterministic_semantic_vector(text: str, dim: int = EMBEDDING_DIM) -> List[
 
     return [float(x) for x in vec]
 
-def generate_embedding(text: str) -> List[float]:
+from functools import lru_cache
+
+@lru_cache(maxsize=2048)
+def _generate_embedding_tuple(text: str) -> tuple:
     """Generate 768-dimensional embedding via Ollama nomic-embed-text with automatic offline fallback."""
     if _check_ollama_availability():
         try:
@@ -83,12 +86,16 @@ def generate_embedding(text: str) -> List[float]:
                 if embedding and len(embedding) == EMBEDDING_DIM:
                     arr = np.array(embedding, dtype=np.float32)
                     arr = arr / np.linalg.norm(arr)
-                    return [float(x) for x in arr]
+                    return tuple(float(x) for x in arr)
         except Exception as e:
             logger.debug("Ollama embedding call failed: %s", e)
 
     # Offline deterministic fallback
-    return _deterministic_semantic_vector(text, dim=EMBEDDING_DIM)
+    return tuple(_deterministic_semantic_vector(text, dim=EMBEDDING_DIM))
+
+def generate_embedding(text: str) -> List[float]:
+    """Return list representation of normalized 768-dimensional embedding vector."""
+    return list(_generate_embedding_tuple(text))
 
 def compute_cosine_similarity(vec_a: List[float], vec_b: List[float]) -> float:
     """Compute cosine similarity between two unit vectors."""

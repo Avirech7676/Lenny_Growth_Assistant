@@ -17,7 +17,9 @@ class Settings(BaseSettings):
     DATABASE_URL: Optional[str] = None
 
     # LLM Settings
-    LLM_PROVIDER: str = "ollama"  # "ollama" | "anthropic" | "openai"
+    LLM_PROVIDER: str = "auto"  # "auto" | "ollama" | "anthropic" | "openai" | "gemini" | "groq"
+    MODEL: Optional[str] = "AUTO"  # "AUTO" | provider or model identifier
+    MODEL_ROUTER_MODE: str = "auto"
     OLLAMA_BASE_URL: str = "http://localhost:11434"
     OLLAMA_MODEL: str = "llama3.2:latest"
     OLLAMA_EMBED_MODEL: str = "nomic-embed-text:latest"
@@ -27,6 +29,10 @@ class Settings(BaseSettings):
     ANTHROPIC_MODEL: str = "claude-3-5-sonnet-latest"
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4o"
+    GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-3.5-flash"
+    GROQ_API_KEY: Optional[str] = None
+    GROQ_MODEL: str = "llama-3.3-70b-versatile"
 
     # Epistemic Grounding Parameters
     COSINE_SIMILARITY_THRESHOLD: float = 0.65

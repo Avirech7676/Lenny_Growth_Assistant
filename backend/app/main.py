@@ -1,4 +1,10 @@
-"""FastAPI main application entrypoint for The Lenny Growth Assistant."""
+import sys
+import os
+
+# Ensure backend root directory is in sys.path so app.* imports resolve cleanly regardless of execution root
+_backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if _backend_dir not in sys.path:
+    sys.path.insert(0, _backend_dir)
 
 from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
@@ -113,7 +119,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     errors = jsonable_encoder(exc.errors())
     error_msg = errors[0]["msg"] if errors else "Request validation failed"
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422),
         content={
             "error": error_msg,
             "details": errors,

@@ -195,5 +195,39 @@ User Query
 ## 7. Assumptions & Dependency Constraints
 
 1. **Local Hardware Assumptions**: Evaluator machine has at least 8GB RAM (16GB recommended) and Docker Desktop installed.
-2. **Local Model Selection**: Defaulting to `llama3.2:latest` (or `glm-5.3-flash`) for optimal speed-to-intelligence balance on consumer hardware.
-3. **Database Pre-seeding**: The Docker Compose pipeline automatically seeds the curated transcripts (`brian-chesky-airbnb.md`, `shreyas-doshi-product.md`) and precomputed vector embeddings so the evaluator can test immediately without a 15-minute ingestion delay.
+2. **Local Model Selection**: Defaulting to `llama3.2:latest` for optimal speed-to-intelligence balance on consumer hardware.
+3. **Database Pre-seeding**: The Docker Compose and bare-metal pipeline automatically seeds the curated transcripts and embeddings so the evaluator can test immediately without cold-start delay.
+
+---
+
+## 8. Explicit Acceptance Criteria
+
+1. **Grounded Retrieval**: All product strategy answers cite verified podcast transcript chunks with guest names and episode titles.
+2. **Epistemic Refusal**: Out-of-domain queries (e.g. cooking, mechanical repairs) deterministically return transparent refusal banners with zero hallucinations.
+3. **Ship 30 Framework**: Generates ~1,250-word viral essays containing Hook, Tension, 3 Pillars with bold anchors, 5-Point Takeaways, and Outro.
+4. **Sandboxed Growth Canvas**: Untrusted HTML operational artifacts render within an origin-isolated iframe (`sandbox="allow-scripts"` without `allow-same-origin`) protected by strict Content Security Policy.
+5. **Multi-Model Dynamic Routing**: Supports dynamic switching between local Ollama (`llama3.2`), cloud models (Claude, Gemini, GPT-4o), and offline fallback with live health telemetry.
+6. **Persistence & Isolation**: Sessions, messages, and artifacts persist in PostgreSQL/SQLite; switching sessions completely isolates context without cross-talk.
+
+---
+
+## 9. Risk Matrix & Mitigations
+
+| Risk | Severity | Likelihood | Mitigation Strategy |
+|---|---|---|---|
+| **Out-of-Domain Hallucination** | High | Medium | Epistemic refusal gate with hybrid cosine/lexical cutoff ($\ge 0.28$) and system prompt injunction. |
+| **Untrusted HTML Artifact XSS** | Critical | Low | Multi-stage sanitization (Regex + Bleach + CSSSanitizer) and iframe sandbox without `allow-same-origin`. |
+| **External LLM Provider Outage** | High | Medium | Dual-model bridge with circuit breakers and deterministic offline grounded fallback. |
+| **Database Unavailability** | High | Low | Transparent auto-fallback from PostgreSQL to SQLite (`lenny_growth_local.db`). |
+| **Token Limit / Context Overflow** | Medium | Medium | Unified context compactor and sliding turn memory window. |
+
+---
+
+## 10. Phased Implementation Plan
+
+- **Phase 1 (Foundations & Ingestion)**: Curate transcripts, token chunking, 768-dim embeddings, and PostgreSQL/pgvector schema.
+- **Phase 2 (Retrieval & Grounding)**: Hybrid retrieval pipeline ($0.70\text{v} + 0.30\text{l}$), cosine similarity cutoff, and epistemic refusal gate.
+- **Phase 3 (Agent Layer & Skills)**: Anthropic Claude Agent SDK integration with in-process MCP tools, Ship 30 for 30 engine, ICE experiments, and operational playbooks.
+- **Phase 4 (Frontend Growth Canvas)**: Split-screen React 19 interface, streaming SSE tokens, evidence drawer, and origin-isolated iframe canvas.
+- **Phase 5 (Multi-Model Bridge & Resilience)**: Dynamic model selector, Ollama local inference, circuit breaker cascade, and comprehensive automated test harness.
+

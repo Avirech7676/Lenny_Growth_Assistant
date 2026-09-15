@@ -126,6 +126,9 @@ def run_ingestion(transcripts_dir: str = "data/transcripts", force: bool = False
     logger.info("Ingestion complete. Total chunks in index: %d", total_chunks_indexed)
     return total_chunks_indexed
 
+# Export alias for callers
+ingest_all_transcripts = run_ingestion
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Ingest podcast transcripts into vector store.")
     parser.add_argument("--dir", default="data/transcripts", help="Path to transcripts directory")

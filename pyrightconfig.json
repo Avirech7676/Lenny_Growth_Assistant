@@ -1,0 +1,16 @@
+{
+  "include": [
+    "backend",
+    "ingestion",
+    "scripts"
+  ],
+  "extraPaths": [
+    "backend",
+    "C:/Users/avina/AppData/Roaming/Python/Python314/site-packages",
+    "C:/Python314/Lib/site-packages"
+  ],
+  "reportMissingImports": "none",
+  "reportMissingTypeStubs": "none",
+  "pythonVersion": "3.14",
+  "pythonPlatform": "Windows"
+}
