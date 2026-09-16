@@ -59,6 +59,17 @@ app = FastAPI(
     redoc_url="/redoc",
 )
 
+@app.get("/", tags=["System"])
+async def root():
+    """Root entrypoint providing service status and documentation links."""
+    return {
+        "status": "healthy",
+        "service": settings.PROJECT_NAME,
+        "version": settings.VERSION,
+        "docs": "/docs",
+        "health": "/health",
+    }
+
 # ============================================================================
 # CORS Middleware
 # ============================================================================
