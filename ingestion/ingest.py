@@ -6,6 +6,7 @@ import glob
 import json
 import time
 import argparse
+import uuid
 
 # Add root directory to sys.path
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -86,7 +87,9 @@ def run_ingestion(transcripts_dir: str = "data/transcripts", force: bool = False
         chunk_models = []
         for chunk in chunks:
             embedding = generate_embedding(chunk.content)
+            chunk_id = str(uuid.uuid4())
             chunk_model = TranscriptChunk(
+                id=chunk_id,
                 transcript_id=transcript_record.id,
                 chunk_index=chunk.chunk_index,
                 content=chunk.content,
@@ -96,7 +99,7 @@ def run_ingestion(transcripts_dir: str = "data/transcripts", force: bool = False
             )
             chunk_models.append(chunk_model)
             cache_records.append({
-                "id": chunk_model.id,
+                "id": chunk_id,
                 "guest": parsed.guest,
                 "title": parsed.title,
                 "chunk_index": chunk.chunk_index,
