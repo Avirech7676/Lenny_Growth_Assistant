@@ -126,6 +126,29 @@ def run_ingestion(transcripts_dir: str = "data/transcripts", force: bool = False
     logger.info("Ingestion complete. Total chunks in index: %d", total_chunks_indexed)
     return total_chunks_indexed
 
+
+def sync_transcripts_from_chatprd(target_dir: str = "data/transcripts", episodes: list = None) -> int:
+    """Download verified episode transcripts directly from Lenny's Podcast / Newsletter transcript repository.
+    
+    Source: https://github.com/ChatPRD/lennys-podcast-transcripts
+    """
+    import urllib.request
+    os.makedirs(target_dir, exist_ok=True)
+    episodes = episodes or ["brian-chesky", "shreyas-doshi", "shreyas-doshi-live"]
+    downloaded = 0
+    for ep in episodes:
+        raw_url = f"https://raw.githubusercontent.com/ChatPRD/lennys-podcast-transcripts/main/episodes/{ep}/transcript.md"
+        dest = os.path.join(target_dir, f"{ep}.md")
+        try:
+            logger.info("Fetching '%s' from https://github.com/ChatPRD/lennys-podcast-transcripts...", ep)
+            urllib.request.urlretrieve(raw_url, dest)
+            logger.info("Synced '%s' to %s", ep, dest)
+            downloaded += 1
+        except Exception as e:
+            logger.warning("Could not sync '%s' from ChatPRD: %s", ep, e)
+    return downloaded
+
+
 # Export alias for callers
 ingest_all_transcripts = run_ingestion
 
@@ -133,6 +156,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Ingest podcast transcripts into vector store.")
     parser.add_argument("--dir", default="data/transcripts", help="Path to transcripts directory")
     parser.add_argument("--force", action="store_true", help="Force re-ingest and overwrite existing records")
+    parser.add_argument("--sync-chatprd", action="store_true", help="Sync latest transcripts from https://github.com/ChatPRD/lennys-podcast-transcripts")
     args = parser.parse_args()
+
+    if args.sync_chatprd:
+        sync_transcripts_from_chatprd(target_dir=args.dir)
 
     run_ingestion(transcripts_dir=args.dir, force=args.force)

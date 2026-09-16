@@ -48,6 +48,35 @@ This repository fulfills 100% of the deliverables specified in **Table 6: Delive
 
 ---
 
+## 🔬 Core Requirements Verification (Sections 3.1, 3.2, 3.3)
+
+### 3.1 API, Sessions, and Persistence
+- **Backend Framework**: Built on **FastAPI** (`backend/app/main.py`) with ASGI lifespan, Pydantic v2 schemas, `X-Request-ID` tracing, `X-Response-Time-MS` latency telemetry, and CORS governance.
+- **Agent Layer & Claude Agent SDK**: Genuinely integrates the **Anthropic Claude Agent SDK** (`claude-agent-sdk` v0.2.x) in [`backend/app/agents/claude_agent_integration.py`](backend/app/agents/claude_agent_integration.py) with in-process MCP tools (`lenny_transcript_search`, `ship30_content_engine`, `growth_canvas_artifact`, `sandbox_code_exec`).
+- **Session Handling**: Every session is isolated via UUID session IDs (`POST /api/v1/sessions`). Multi-turn conversation context maintains strict session memory without cross-session bleed.
+- **Persistence (PostgreSQL & SQLite Fallback)**: Full relational schema (`Session`, `Message`, `Artifact`, `Transcript`, `TranscriptChunk`, `RetrievalLog`) in [`backend/app/db/models.py`](backend/app/db/models.py). Supports PostgreSQL 16 + `pgvector` (via Docker Compose, Supabase, or Railway) with automatic zero-config fallback to local SQLite (`lenny_growth_local.db`).
+- **API Quality**: Comprehensive OpenAPI documentation at `/docs`, structured JSON error handling (400/404/422/500), and dedicated health endpoints (`/health`, `/health/db`, `/health/llm`, `/api/health/cascade`).
+
+### 3.2 Flexible LLM Configuration
+- **Cloud Providers**: Multi-model integration for **Anthropic Claude** (`claude-3-5-sonnet`), **OpenAI** (`gpt-4o`), **Google Gemini** (`gemini-1.5-flash`), and **Groq** (`llama-3.3-70b-versatile`) in [`backend/app/models/provider.py`](backend/app/models/provider.py).
+- **Local LLM (Mandatory for Demo)**: First-class **Ollama** engine (`http://localhost:11434`, default `llama3.2:latest`) enabling complete local execution with zero API keys.
+- **Runtime Toggle**: Switch models dynamically via `POST /api/models/select` with active provider visible in the Growth Canvas UI (`ModeSelector` / `Header`).
+- **Circuit Breaker & Fallback**: Documented failure recovery cascades across cloud $\rightarrow$ local Ollama $\rightarrow$ offline deterministic grounded synthesis.
+
+### 3.3 Knowledge Base & Ingestion Pipeline
+- **Official Data Source**: Transcripts sourced directly from [Lenny's Podcast / Newsletter transcript repository (ChatPRD)](https://github.com/ChatPRD/lennys-podcast-transcripts).
+- **Ingestion Lifecycle** ([`ingestion/ingest.py`](ingestion/ingest.py)):
+  1. **Loading**: [`ingestion/parser.py`](ingestion/parser.py) parses markdown transcripts, extracting YAML frontmatter (`guest`, `title`, `youtube_url`) and cleaning dialogue lines.
+  2. **Chunking**: [`ingestion/chunker.py`](ingestion/chunker.py) segments episodes using a 250-token sliding window with 40-token overlap, preserving speaker identity.
+  3. **Indexing**: [`ingestion/embedder.py`](ingestion/embedder.py) computes 768-dimensional normalized dense vector embeddings stored in PostgreSQL `pgvector` or JSON vector cache.
+  4. **Refreshing & Invalidation**: Idempotent SHA-256 content hashing (`content_hash`) ensures only modified or new episodes are re-embedded. Sync latest episodes anytime with:
+     ```bash
+     python -m ingestion.ingest --sync-chatprd
+     ```
+  5. **Grounding & Provenance Tracing**: Hybrid scoring ($0.70 \times \text{Vector} + 0.30 \times \text{Lexical}$) with strict cutoff gate ($\ge 0.28$). Every answer cites verified source badges `[Guest Name, Episode Title]`, transparently refusing out-of-domain queries without hallucination.
+
+---
+
 ## ⚙️ Prerequisites & Environment Configuration
 
 ### System Prerequisites

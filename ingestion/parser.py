@@ -26,20 +26,21 @@ def parse_transcript_file(file_path: str) -> ParsedTranscript:
 
     content_hash = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
 
-    # Extract metadata headers:
-    # # Guest: ...
-    # # Episode: ...
-    # # Source: ...
+    # Extract metadata headers (Supports both # Header and ChatPRD YAML frontmatter):
+    yaml_guest = re.search(r"^guest:\s*(.+)$", raw_text, re.MULTILINE)
+    yaml_title = re.search(r"^title:\s*(.+)$", raw_text, re.MULTILINE)
+
     guest_match = re.search(r"^#\s*Guest:\s*(.+)$", raw_text, re.MULTILINE)
     episode_match = re.search(r"^#\s*Episode:\s*(.+)$", raw_text, re.MULTILINE)
     source_match = re.search(r"^#\s*Source:\s*(.+)$", raw_text, re.MULTILINE)
 
-    guest = guest_match.group(1).strip() if guest_match else "Lenny's Guest"
-    title = episode_match.group(1).strip() if episode_match else os.path.splitext(os.path.basename(file_path))[0]
-    source = source_match.group(1).strip() if source_match else "Lenny's Podcast"
+    guest = guest_match.group(1).strip() if guest_match else (yaml_guest.group(1).strip() if yaml_guest else "Lenny's Guest")
+    title = episode_match.group(1).strip() if episode_match else (yaml_title.group(1).strip() if yaml_title else os.path.splitext(os.path.basename(file_path))[0])
+    source = source_match.group(1).strip() if source_match else ("Lenny's Podcast (ChatPRD)" if (yaml_guest or yaml_title) else "Lenny's Podcast")
 
-    # Clean body text: remove header lines starting with # Guest, # Episode, # Source
-    body_text = re.sub(r"^#\s*(Guest|Episode|Source):.*$", "", raw_text, flags=re.MULTILINE).strip()
+    # Clean body text: remove YAML frontmatter and header lines
+    body_text = re.sub(r"^---[\s\S]*?---\s*", "", raw_text)
+    body_text = re.sub(r"^#\s*(Guest|Episode|Source):.*$", "", body_text, flags=re.MULTILINE).strip()
 
     # Parse dialogue turns: lines starting with **Speaker Name:**
     turn_pattern = re.compile(r"\*\*([^*:]+):\*\*\s*")
