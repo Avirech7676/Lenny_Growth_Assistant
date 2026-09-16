@@ -199,9 +199,9 @@ export default function ChatInput({
           />
 
           {/* Composer Bottom Toolbar */}
-          <div className="flex items-center justify-between pt-2 border-t border-slate-800/60 mt-1 flex-wrap gap-y-2">
+          <div className="flex items-center justify-between pt-2 border-t border-slate-800/60 mt-1 gap-2">
             {/* Left: Capability Mode Badges & Controls */}
-            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 max-w-[calc(100%-90px)]">
+            <div className="flex items-center gap-1.5 overflow-x-auto py-0.5 min-w-0 flex-1 no-scrollbar">
               {/* File Attachment Button */}
               <button
                 type="button"
@@ -341,7 +341,7 @@ export default function ChatInput({
             </div>
 
             {/* Right: Send or Stop Button */}
-            <div className="flex items-center gap-2 shrink-0 ml-auto">
+            <div className="flex items-center gap-2 shrink-0">
               {disabled ? (
                 <button
                   type="button"
