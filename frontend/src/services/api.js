@@ -2,7 +2,7 @@
  * API client service connecting the Growth Canvas frontend to the FastAPI backend.
  */
 
-const API_BASE = '';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 async function request(endpoint, options = {}) {
   const url = `${API_BASE}${endpoint}`;
