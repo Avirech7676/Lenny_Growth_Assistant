@@ -28,7 +28,7 @@ This repository fulfills 100% of the deliverables specified in **Table 6: Delive
 | **3. Product Requirements (PRD)** | [`PRD.md`](PRD.md) | Problem statement, user personas, functional & non-functional requirements |
 | **4. Visual & UX Design System** | [`design.md`](design.md) | Design philosophy, split Growth Canvas, typography, color tokens, and states |
 | **5. System Architecture & ADR** | [`architecture.md`](architecture.md) | Multi-model routing, RAG pipeline, sandbox CSP isolation, database schema |
-| **6. Coding Agent Transcripts** | [`agent-transcripts/`](agent-transcripts/) | 22 chronological coding agent session logs recording all development phases |
+| **6. Coding Agent Transcripts** | [`agent-transcripts/`](agent-transcripts/) | 17 curated chronological coding agent session logs recording all development phases |
 | **7. Automated & Manual Tests** | [`backend/tests/`](backend/tests/) & [`docs/manual_ui_test_plan.md`](docs/manual_ui_test_plan.md) | 16-suite pytest matrix (100% pass) + 6-step manual evaluator UI test plan |
 | **8. 2-3 Min Demo Video** | [Demo Recording Guide](#-2-3-minute-demo-video-walkthrough-guide) | Video script, camera-on checklist, and submission link |
 

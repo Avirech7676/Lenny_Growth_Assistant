@@ -63,7 +63,7 @@
 | **3** | Product Requirements (PRD) | [`PRD.md`](PRD.md) | Formats User, Problem, JTBD, Success Metrics, Assumptions, Scope, Golden Flows, Acceptance Criteria, Risks, and Phased Implementation Plan. | **PASS** |
 | **4** | Visual & UX Design System | [`design.md`](design.md) | Defines UI/UX principles, design dials, color tokens, typography, spacing, information architecture, interaction states, accessibility, and design decisions. | **PASS** |
 | **5** | Architecture Specification | [`architecture.md`](architecture.md) | Covers system topology, database DDL schema, API specs, component boundaries, ingestion/retrieval, model bridge, security, and deployment. | **PASS** |
-| **6** | Coding Agent Transcripts | [`agent-transcripts/`](agent-transcripts/) | 23 chronological session logs including dedicated remediation transcript documenting failed attempt, diagnosis, correction, and verification. | **PASS** |
+| **6** | Coding Agent Transcripts | [`agent-transcripts/`](agent-transcripts/) | 17 curated chronological session logs including dedicated remediation transcript documenting failed attempt, diagnosis, correction, and verification. | **PASS** |
 | **7** | Automated & Manual Tests | [`backend/tests/`](backend/tests/) & [`docs/manual_ui_test_plan.md`](docs/manual_ui_test_plan.md) | Automated pytest suites (21/21 in compliance suite, 43/43 in core suite) + 6-step manual evaluator walkthrough. | **PASS** |
 | **8** | 2-3 Min Demo Script | [`DEMO_SCRIPT.md`](DEMO_SCRIPT.md) | Complete 2.5-minute video teleprompter script and camera-on checklist. | **PASS** |
 
@@ -72,8 +72,8 @@
 ## 5. Agent Transcripts & Audit Trail: PASS
 
 - **Location**: [`agent-transcripts/`](agent-transcripts/)
-- **Total Logs**: 23 markdown files (Stages 00 through 21 + Stage 22 Remediation Lifecycle).
-- **Incident & Remediation Document**: [`agent-transcripts/22-remediation-and-correction.md`](agent-transcripts/22-remediation-and-correction.md) explicitly documents:
+- **Total Logs**: 17 curated engineering markdown files (Stages 01 through 16 + Stage 17 Remediation Lifecycle).
+- **Incident & Remediation Document**: [`agent-transcripts/17_incident_remediation.md`](agent-transcripts/17_incident_remediation.md) explicitly documents:
   1. **Failed Attempt**: FastAPI 422 query parameter parsing, PostgreSQL connection refused, boolean callable TypeError.
   2. **Diagnosis**: Missing Pydantic schema, bypassed fallback context manager, non-callable attribute check.
   3. **Correction**: `ModelSelectRequest(BaseModel)`, `get_db_session()` test fixture cold-start seeding, defensive bool check.
